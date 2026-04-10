@@ -14,40 +14,6 @@
 
 Finance teams lose thousands monthly to unpredictable freight costs and undetected risky invoices. This system automates both — **predicting shipping costs** before they happen and **flagging invoice anomalies** before they drain revenue.
 
----
-
-## Architecture
-
-```
-                         ┌─────────────────────────────────────────┐
-                         │          FastAPI Application            │
-                         │                                        │
-    ┌────────────┐       │  ┌──────────┐  ┌───────────────────┐   │
-    │            │       │  │ /predict/ │  │  /predict/        │   │
-    │  Client /  │──────▶│  │  freight  │  │  invoice-risk     │   │
-    │  Dashboard │       │  └────┬─────┘  └────────┬──────────┘   │
-    │            │◀──────│       │                  │              │
-    └────────────┘       │  ┌────▼──────────────────▼──────────┐  │
-                         │  │       Model Registry             │  │
-                         │  │  (versioned .pkl + metadata.json) │  │
-                         │  └────┬─────────────────────────────┘  │
-                         │       │                                │
-                         │  ┌────▼─────────────────────────────┐  │
-                         │  │     Prediction Logger (SQLite)    │  │
-                         │  └──────────────────────────────────┘  │
-                         │                                        │
-                         │  ┌──────────────────────────────────┐  │
-                         │  │  /retrain/freight                │  │
-                         │  │  /retrain/invoice                │  │
-                         │  │  Train → Compare → Auto-Promote  │  │
-                         │  └──────────────────────────────────┘  │
-                         └─────────────────────────────────────────┘
-
-    ┌──────────────┐     ┌──────────────┐     ┌──────────────────┐
-    │ SQLite DB    │     │ Training     │     │ Drift Checker    │
-    │ (inventory)  │────▶│ Pipelines    │     │ (monitoring)     │
-    └──────────────┘     └──────────────┘     └──────────────────┘
-```
 
 ---
 
@@ -58,7 +24,7 @@ Finance teams lose thousands monthly to unpredictable freight costs and undetect
 | Freight Cost Prediction | Regression | Linear Regression (best of 3) | MAE / RMSE / R² | **MAE: 24.11, RMSE: 124.72, R²: 97%** |
 | Invoice Risk Flagging | Classification | Random Forest + GridSearchCV | F1 / ROC-AUC / Precision | **F1: 0.82, ROC-AUC: 0.87, Precision: 96%** |
 
-**Freight model** compares Linear Regression, Decision Tree, and Random Forest — selects the one with the lowest MAE. Linear Regression wins because freight and dollar amounts are near-perfectly correlated (r > 0.95).
+**Freight model** compares Linear Regression, Decision Tree, and Random Forest — selects the one with the lowest MAE. 
 
 **Invoice model** uses SQL-based feature engineering (CTE aggregations across purchase orders) and flags invoices where dollar amounts don't match PO totals or receiving is abnormally slow. Tuned with 5-fold cross-validated GridSearchCV optimizing for F1 score.
 
@@ -70,7 +36,7 @@ Finance teams lose thousands monthly to unpredictable freight costs and undetect
 freight-analytics-engine/
 ├── app/                              # FastAPI application
 │   ├── main.py                       # App factory, lifespan, health endpoint
-│   ├── config.py                     # pydantic-settings configuration
+│   ├── config.py                     
 │   ├── schemas.py                    # Pydantic request/response models
 │   ├── templates/
 │   │   └── dashboard.html            # Observability dashboard
@@ -84,14 +50,14 @@ freight-analytics-engine/
 │       └── prediction_logger.py      # SQLite prediction logging
 ├── training/                         # ML training pipelines
 │   ├── freight/
-│   │   ├── data_preprocessing.py     # Load data, extract features
-│   │   ├── model_evaluation.py       # Train & evaluate 3 regressors
-│   │   └── train.py                  # Orchestrator: train → evaluate → return best
+│   │   ├── data_preprocessing.py     
+│   │   ├── model_evaluation.py      
+│   │   └── train.py                  
 │   └── invoice/
-│       ├── data_preprocessing.py     # SQL CTE feature engineering + risk labeling
-│       ├── model_evaluation.py       # GridSearchCV Random Forest classifier
-│       └── train.py                  # Orchestrator: train → tune → evaluate
-├── models/                           # Versioned model artifacts
+│       ├── data_preprocessing.py    
+│       ├── model_evaluation.py       
+│       └── train.py                  
+├── models/                           
 │   ├── freight/v1_{timestamp}/
 │   │   ├── model.pkl
 │   │   └── metadata.json
@@ -127,7 +93,7 @@ freight-analytics-engine/
 
 ```bash
 # Clone and install
-git clone https://github.com/<your-username>/freight-analytics-engine.git
+git clone https://github.com/SayaliBhosale16/freight-analytics-engine.git
 cd freight-analytics-engine
 pip install -r requirements.txt
 
@@ -241,60 +207,4 @@ A single-page dashboard at `/dashboard` showing:
 
 ---
 
-## Data Pipeline
 
-```
-SQLite Database (5 tables, 5.5K invoices)
-         │
-         ├──▶ Freight Pipeline
-         │      SQL query → Extract Dollars/Freight → Train 3 models
-         │      → Select best (min MAE) → Save versioned .pkl
-         │
-         └──▶ Invoice Pipeline
-                SQL CTE aggregation → 9 engineered features
-                → Risk labeling (dollar mismatch >$5 or slow receiving >10 days)
-                → StandardScaler → GridSearchCV Random Forest
-                → Save versioned model.pkl + scaler.pkl
-```
-
-### Feature Engineering (Invoice Model)
-The invoice classifier uses SQL-based feature engineering with Common Table Expressions:
-- **invoice_quantity** / **invoice_dollars** / **Freight** — direct from invoice
-- **total_item_quantity** / **total_item_dollars** — aggregated across the purchase order
-- **avg_receiving_time** — average days between PO date and receiving date
-- **days_po_to_invoice** / **days_to_pay** — time delta features
-
----
-
-## Testing
-
-```bash
-pytest tests/ -v
-```
-
-```
-tests/test_api_freight.py        — 5 tests (valid/invalid input, batch, health check)
-tests/test_api_invoice.py        — 4 tests (valid/invalid input, batch, model info)
-tests/test_freight_preprocessing — 3 tests (data loading, feature extraction, split)
-tests/test_invoice_preprocessing — 5 tests (risk label logic, data loading, label application)
-──────────────────────────────────
-17 passed
-```
-
----
-
-## Configuration
-
-All settings are environment-variable driven via `pydantic-settings`. Copy `.env.example` to `.env` to customize:
-
-```bash
-cp .env.example .env
-```
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DB_PATH` | `data/inventory.db` | Path to the SQLite database |
-| `PREDICTIONS_DB_PATH` | `data/predictions.db` | Prediction log database |
-| `MODELS_DIR` | `models` | Model artifacts directory |
-| `RETRAIN_MIN_IMPROVEMENT` | `0.01` | Minimum improvement threshold (1%) for auto-promotion |
-| `LOG_LEVEL` | `INFO` | Logging level |
