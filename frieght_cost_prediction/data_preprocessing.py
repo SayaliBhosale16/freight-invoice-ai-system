@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 
 def load_vendor_invoice_data(db_path):
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect('data/inventory.db')
     query = "SELECT * FROM vendor_invoice"
     df = pd.read_sql_query(query, conn)
     conn.close()
