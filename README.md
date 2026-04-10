@@ -29,6 +29,9 @@ Finance teams lose thousands monthly to unpredictable freight costs and undetect
 **Invoice model** uses SQL-based feature engineering (CTE aggregations across purchase orders) and flags invoices where dollar amounts don't match PO totals or receiving is abnormally slow. Tuned with 5-fold cross-validated GridSearchCV optimizing for F1 score.
 
 ---
+<img width="1337" height="814" alt="image" src="https://github.com/user-attachments/assets/b3eb4cdf-17dd-4794-a756-96dc904c73a8" />
+
+---
 
 ## Project Structure
 
