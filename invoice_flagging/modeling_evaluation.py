@@ -26,11 +26,11 @@ def train_random_forest(X_train, y_train):
         verbose=0
     )
     grid_search.fit(X_train, y_train)
-    return grid_search.best_estimator_
+    return grid_search
 
 def evaluate_classifier(model, X_test, y_test, model_name):
     preds = model.predict(X_test)
     accuracy = accuracy_score(y_test, preds)
     report = classification_report(y_test, preds)
-    print(f"{model_name} Accuracy: {acc:.4f}")
+    print(f"{model_name} Accuracy: {accuracy:.4f}")
     print(f"{model_name} Classification Report:\n{report}") 

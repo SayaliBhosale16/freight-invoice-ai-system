@@ -1,0 +1,13 @@
+.git/
+.venv/
+__pycache__/
+*.pyc
+notebooks/
+data/inventory.db
+data/predictions.db
+.DS_Store
+.env
+*.ipynb
+frieght_cost_prediction/
+invoice_flagging/
+inference/

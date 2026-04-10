@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freight Analytics Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0e1a;
+            --bg-card: #111827;
+            --bg-input: #0d1220;
+            --border: #1e2a4a;
+            --text: #e8ecf4;
+            --text-2: #8892a8;
+            --text-3: #4a5568;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --purple: #8b5cf6;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #0f1a30, #162040, #0f1a30);
+            border-bottom: 1px solid var(--border);
+            padding: 1.1rem 2.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+            position: relative;
+        }
+        .header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--blue), var(--cyan), transparent);
+            opacity: 0.5;
+        }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .logo { font-size: 1.8rem; }
+        .header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+        .badges { display: flex; gap: 0.4rem; }
+        .badge-h {
+            font-size: 0.6rem; padding: 0.2rem 0.6rem; border-radius: 999px;
+            font-weight: 600; letter-spacing: 0.5px;
+        }
+        .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); }
+        .badge-green { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+        .header-right { display: flex; align-items: center; gap: 0.5rem; }
+        .dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+            box-shadow: 0 0 10px rgba(16,185,129,0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .header-status { font-size: 0.8rem; color: var(--text-2); }
+
+        /* ===== CONTAINER ===== */
+        .container { max-width: 1360px; margin: 0 auto; padding: 1.5rem 2.5rem 2rem; }
+
+        /* ===== SECTION SPACING ===== */
+        .section { margin-bottom: 1.8rem; }
+        .section-label {
+            font-size: 0.7rem; font-weight: 600; color: var(--text-3);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem;
+        }
+
+        /* ===== STATS ROW ===== */
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+        .stat {
+            border: 1px solid var(--border); border-radius: 14px;
+            padding: 1.2rem 1.4rem;
+            display: flex; align-items: center; gap: 1rem;
+            transition: transform 0.15s, border-color 0.2s;
+        }
+        .stat:hover { transform: translateY(-2px); border-color: rgba(59,130,246,0.3); }
+        .stat.g-blue { background: linear-gradient(135deg, #1e3a5f 0%, #111827 100%); }
+        .stat.g-green { background: linear-gradient(135deg, #134e3a 0%, #111827 100%); }
+        .stat.g-amber { background: linear-gradient(135deg, #4a3520 0%, #111827 100%); }
+        .stat.g-purple { background: linear-gradient(135deg, #3b1f6e 0%, #111827 100%); }
+        .stat-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .stat-icon.i-blue { background: rgba(59,130,246,0.2); }
+        .stat-icon.i-green { background: rgba(16,185,129,0.2); }
+        .stat-icon.i-amber { background: rgba(245,158,11,0.2); }
+        .stat-icon.i-purple { background: rgba(139,92,246,0.2); }
+        .stat-lbl { font-size: 0.65rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+        .stat-val { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+        .stat-sub { font-size: 0.7rem; color: var(--text-3); margin-top: 0.1rem; }
+        .v-blue { color: var(--blue); }
+        .v-green { color: var(--green); }
+        .v-amber { color: var(--amber); }
+        .v-purple { color: var(--purple); }
+
+        /* ===== MODELS ROW ===== */
+        .models { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .model-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+            padding: 1.4rem 1.6rem;
+        }
+        .mc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+        .mc-name { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+        .mc-type { font-size: 0.75rem; color: var(--text-3); font-weight: 400; }
+        .mc-badge {
+            font-size: 0.55rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600;
+            background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.2);
+        }
+        .mc-desc { font-size: 0.78rem; color: var(--text-3); margin-bottom: 1rem; line-height: 1.4; }
+        .mc-metrics { display: flex; gap: 0.6rem; margin-bottom: 0.8rem; }
+        .mc-m {
+            background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+            padding: 0.6rem 0.9rem; flex: 1; text-align: center;
+        }
+        .mc-m-lbl { font-size: 0.55rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+        .mc-m-val { font-size: 1.2rem; font-weight: 700; color: var(--cyan); margin-top: 0.1rem; }
+        .mc-footer {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mc-ver { font-size: 0.7rem; color: var(--text-3); }
+        .mc-ver span { color: var(--text-2); }
+        .btn-retrain {
+            padding: 0.4rem 1rem; border: 1px solid rgba(245,158,11,0.3);
+            background: rgba(245,158,11,0.08); color: var(--amber);
+            border-radius: 8px; font-size: 0.7rem; font-weight: 600; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-retrain:hover { background: rgba(245,158,11,0.18); }
+        .btn-retrain:disabled { opacity: 0.4; cursor: not-allowed; }
+        .retrain-result {
+            margin-top: 0.6rem; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem; color: var(--text-3); min-height: 0;
+        }
+        .retrain-result.success { color: var(--green); }
+        .retrain-result.error { color: var(--red); }
+
+        /* ===== TESTERS ===== */
+        .testers { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .tester {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+            padding: 1.4rem 1.6rem;
+        }
+        .t-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem; }
+        .t-icon { font-size: 1.1rem; }
+        .t-title { font-size: 1rem; font-weight: 700; }
+        .t-desc { font-size: 0.78rem; color: var(--text-3); margin-bottom: 1rem; }
+        .fg { margin-bottom: 0.6rem; }
+        .fl { display: block; font-size: 0.7rem; color: var(--text-2); margin-bottom: 0.3rem; font-weight: 500; }
+        .fi {
+            width: 100%; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 10px; padding: 0.65rem 0.85rem; color: var(--text);
+            font-size: 0.9rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .fi:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+        .fi::placeholder { color: var(--text-3); }
+        .fr { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .btn {
+            width: 100%; padding: 0.7rem; border: none; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 700; cursor: pointer;
+            margin-top: 0.4rem; transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-blue { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; }
+        .btn-purple { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: #fff; }
+        .result {
+            margin-top: 0.8rem; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 10px; padding: 0.8rem 1rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+            color: var(--text-3); white-space: pre-wrap; min-height: 2rem;
+        }
+        .result.success { color: var(--green); border-color: rgba(16,185,129,0.25); background: rgba(16,185,129,0.04); }
+        .result.error { color: var(--red); border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04); }
+
+        /* ===== BOTTOM: CHART + LOG ===== */
+        .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .b-panel {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+            padding: 1.2rem 1.4rem;
+        }
+        .b-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+        .b-title { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+        .b-sub { font-size: 0.7rem; color: var(--text-3); }
+
+        .chart-bars { display: flex; align-items: flex-end; gap: 3px; height: 70px; }
+        .chart-bar {
+            flex: 1; border-radius: 3px 3px 0 0; min-height: 2px; position: relative;
+            background: linear-gradient(180deg, var(--blue), rgba(59,130,246,0.25));
+            opacity: 0.65; transition: opacity 0.2s;
+        }
+        .chart-bar:hover { opacity: 1; }
+        .chart-bar:hover::after {
+            content: attr(data-tooltip); position: absolute; bottom: calc(100% + 5px);
+            left: 50%; transform: translateX(-50%); background: #1a2035;
+            border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 6px;
+            font-size: 0.65rem; white-space: nowrap; color: var(--text); z-index: 10;
+        }
+
+        .log-entries { max-height: 140px; overflow-y: auto; }
+        .log-entry {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.35rem 0; border-bottom: 1px solid rgba(30,42,74,0.4);
+            font-size: 0.75rem; color: var(--text-2);
+        }
+        .log-entry:last-child { border-bottom: none; }
+        .tag {
+            font-size: 0.55rem; padding: 0.1rem 0.35rem; border-radius: 999px;
+            font-weight: 600; flex-shrink: 0;
+        }
+        .tag-freight { background: rgba(59,130,246,0.15); color: var(--blue); }
+        .tag-invoice { background: rgba(139,92,246,0.15); color: var(--purple); }
+        .log-time { color: var(--text-3); font-family: monospace; font-size: 0.7rem; flex-shrink: 0; }
+        .log-detail { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .log-lat { font-family: monospace; font-size: 0.65rem; color: var(--text-3); flex-shrink: 0; }
+        .empty { color: var(--text-3); font-size: 0.8rem; text-align: center; padding: 1.5rem; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <span class="logo">&#x1F6A2;</span>
+            <h1>Freight Analytics Engine</h1>
+            <div class="badges">
+                <span class="badge-h badge-blue">MLOps</span>
+                <span class="badge-h badge-green">Live</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="dot"></span>
+            <span class="header-status">All systems operational</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- STATS -->
+        <div class="section">
+            <div class="stats">
+                <div class="stat g-blue">
+                    <div class="stat-icon i-blue">&#x1F4E6;</div>
+                    <div>
+                        <div class="stat-lbl">Total Predictions</div>
+                        <div class="stat-val v-blue">{{ stats.total }}</div>
+                        <div class="stat-sub">All time</div>
+                    </div>
+                </div>
+                <div class="stat g-green">
+                    <div class="stat-icon i-green">&#x1F4C8;</div>
+                    <div>
+                        <div class="stat-lbl">Last 24 Hours</div>
+                        <div class="stat-val v-green">{{ stats.last_24h }}</div>
+                        <div class="stat-sub">Predictions served</div>
+                    </div>
+                </div>
+                <div class="stat g-amber">
+                    <div class="stat-icon i-amber">&#x26A1;</div>
+                    <div>
+                        <div class="stat-lbl">Avg Latency</div>
+                        <div class="stat-val v-amber">{{ stats.avg_latency_ms }}ms</div>
+                        <div class="stat-sub">Response time</div>
+                    </div>
+                </div>
+                <div class="stat g-purple">
+                    <div class="stat-icon i-purple">&#x1F916;</div>
+                    <div>
+                        <div class="stat-lbl">Models Active</div>
+                        <div class="stat-val v-purple">2</div>
+                        <div class="stat-sub">Freight + Invoice</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODELS -->
+        <div class="section">
+            <div class="section-label">&#x2699;&#xFE0F; Model Registry</div>
+            <div class="models">
+                {% for name, model in models.items() %}
+                <div class="model-card">
+                    <div class="mc-top">
+                        <span class="mc-name">
+                            {% if name == 'freight' %}&#x1F69A;{% else %}&#x1F4CB;{% endif %}
+                            {{ name | title }}
+                            <span class="mc-type">{% if name == 'freight' %}Regression{% else %}Classifier{% endif %}</span>
+                        </span>
+                        <span class="mc-badge">Active</span>
+                    </div>
+                    <div class="mc-desc">
+                        {% if name == 'freight' %}
+                        Predicts shipping cost from invoice dollar amount. Compares Linear Regression, Decision Tree, and Random Forest &mdash; selects the model with lowest MAE.
+                        {% else %}
+                        Flags risky invoices by detecting dollar amount discrepancies and receiving delays. Uses Random Forest with GridSearchCV hyperparameter tuning (5-fold CV, F1-optimized).
+                        {% endif %}
+                    </div>
+                    <div class="mc-metrics">
+                        {% if name == 'freight' %}
+                        <div class="mc-m"><div class="mc-m-lbl">MAE</div><div class="mc-m-val">{{ "%.2f"|format(model.metrics.get('mae',0)) }}</div></div>
+                        <div class="mc-m"><div class="mc-m-lbl">RMSE</div><div class="mc-m-val">{{ "%.2f"|format(model.metrics.get('rmse',0)) }}</div></div>
+                        <div class="mc-m"><div class="mc-m-lbl">R&sup2; Score</div><div class="mc-m-val">{{ "%.1f"|format(model.metrics.get('r2',0)) }}%</div></div>
+                        {% else %}
+                        <div class="mc-m"><div class="mc-m-lbl">F1 Score</div><div class="mc-m-val">{{ "%.2f"|format(model.metrics.get('f1_score',0)) }}</div></div>
+                        <div class="mc-m"><div class="mc-m-lbl">ROC-AUC</div><div class="mc-m-val">{{ "%.2f"|format(model.metrics.get('roc_auc',0)) }}</div></div>
+                        <div class="mc-m"><div class="mc-m-lbl">Precision</div><div class="mc-m-val">{{ "%.2f"|format(model.metrics.get('precision',0)) }}</div></div>
+                        <div class="mc-m"><div class="mc-m-lbl">Recall</div><div class="mc-m-val">{{ "%.2f"|format(model.metrics.get('recall',0)) }}</div></div>
+                        {% endif %}
+                    </div>
+                    <div class="mc-footer">
+                        <span class="mc-ver">Version: <span>{{ model.version }}</span> &middot; {{ model.version_count }} version(s)</span>
+                        <button class="btn-retrain" onclick="retrain('{{ name }}',this)">&#x1F504; Retrain</button>
+                    </div>
+                    <div class="retrain-result" id="retrain-{{ name }}-result"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- TESTERS -->
+        <div class="section">
+            <div class="section-label">&#x1F9EA; Live Prediction Testing</div>
+            <div class="testers">
+                <!-- Freight -->
+                <div class="tester">
+                    <div class="t-head">
+                        <span class="t-icon">&#x1F69A;</span>
+                        <span class="t-title">Freight Cost Prediction</span>
+                    </div>
+                    <div class="t-desc">Enter an invoice dollar amount to estimate the shipping freight cost. The model learned from 5,500+ historical vendor invoices.</div>
+                    <div class="fg">
+                        <label class="fl">Invoice Amount ($)</label>
+                        <input type="number" id="freight-dollars" class="fi" placeholder="e.g. 1500" min="1" step="0.01">
+                    </div>
+                    <button class="btn btn-blue" onclick="predictFreight()">&#x1F4E6; Predict Freight Cost</button>
+                    <div class="result" id="freight-result">Enter a dollar amount above to get started</div>
+                </div>
+
+                <!-- Invoice -->
+                <div class="tester">
+                    <div class="t-head">
+                        <span class="t-icon">&#x1F6A9;</span>
+                        <span class="t-title">Invoice Risk Flagging</span>
+                    </div>
+                    <div class="t-desc">Check if an invoice is anomalous. The model detects discrepancies between invoice amounts, PO totals, and delivery timing.</div>
+                    <div class="fr">
+                        <div class="fg"><label class="fl">Invoice Quantity</label><input type="number" id="inv-qty" class="fi" placeholder="10" min="1"></div>
+                        <div class="fg"><label class="fl">Invoice Dollars</label><input type="number" id="inv-dollars" class="fi" placeholder="500" min="1"></div>
+                    </div>
+                    <div class="fr">
+                        <div class="fg"><label class="fl">Freight Cost</label><input type="number" id="inv-freight" class="fi" placeholder="25" min="0"></div>
+                        <div class="fg"><label class="fl">Total Item Qty</label><input type="number" id="inv-total-qty" class="fi" placeholder="100" min="1"></div>
+                    </div>
+                    <div class="fr">
+                        <div class="fg"><label class="fl">Total Item Dollars</label><input type="number" id="inv-total-dollars" class="fi" placeholder="5000" min="1"></div>
+                        <div class="fg"><label class="fl">Days PO to Invoice</label><input type="number" id="inv-days-po" class="fi" placeholder="5" min="0" value="5"></div>
+                    </div>
+                    <div class="fr">
+                        <div class="fg"><label class="fl">Days to Pay</label><input type="number" id="inv-days-pay" class="fi" placeholder="15" min="0" value="15"></div>
+                        <div class="fg"><label class="fl">Total Brands</label><input type="number" id="inv-brands" class="fi" placeholder="1" min="0" value="1"></div>
+                    </div>
+                    <div class="fg"><label class="fl">Avg Receiving Time (days)</label><input type="number" id="inv-recv-time" class="fi" placeholder="3" min="0" value="3"></div>
+                    <button class="btn btn-purple" onclick="predictInvoice()">&#x1F50D; Check Invoice Risk</button>
+                    <div class="result" id="invoice-result">Fill in invoice details to check for anomalies</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM: CHART + LOG -->
+        <div class="section">
+            <div class="section-label">&#x1F4CA; Observability</div>
+            <div class="bottom">
+                <div class="b-panel">
+                    <div class="b-head">
+                        <span class="b-title">&#x1F4C8; Prediction Activity (24h)</span>
+                        <span class="b-sub">Freight: {{ stats.freight_count }} &middot; Invoice: {{ stats.invoice_count }}</span>
+                    </div>
+                    <div class="chart-bars">
+                        {% set max_count = stats.hourly_counts | map(attribute='count') | max if stats.hourly_counts else 1 %}
+                        {% for item in stats.hourly_counts %}
+                        <div class="chart-bar"
+                             style="height:{{ (item.count / (max_count if max_count > 0 else 1) * 100)|int }}%"
+                             data-tooltip="{{ item.hour }}: {{ item.count }} predictions">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="b-panel">
+                    <div class="b-head">
+                        <span class="b-title">&#x1F4DD; Recent Predictions</span>
+                        <span class="b-sub">Last {{ stats.recent|length }} requests</span>
+                    </div>
+                    <div class="log-entries">
+                        {% if stats.recent %}
+                        {% for pred in stats.recent %}
+                        <div class="log-entry">
+                            <span class="log-time">{{ pred.timestamp[11:19] }}</span>
+                            <span class="tag tag-{{ pred.model_name }}">{{ pred.model_name }}</span>
+                            <span class="log-detail">{{ pred.prediction }}</span>
+                            <span class="log-lat">{{ "%.1f"|format(pred.latency_ms) }}ms</span>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty">No predictions yet &mdash; use the testers above to get started</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        async function predictFreight() {
+            const d = parseFloat(document.getElementById('freight-dollars').value);
+            const r = document.getElementById('freight-result');
+            if (!d || d <= 0) { r.className = 'result error'; r.textContent = 'Please enter a valid amount > 0'; return; }
+            r.className = 'result'; r.textContent = 'Predicting...';
+            try {
+                const res = await fetch('/predict/freight', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dollars: d }) });
+                const j = await res.json();
+                if (res.ok) { r.className = 'result success'; r.textContent = `Predicted Freight: $${j.predicted_freight.toFixed(2)}\nModel version: ${j.model_version}`; }
+                else { r.className = 'result error'; r.textContent = `Error: ${j.detail || JSON.stringify(j)}`; }
+            } catch (e) { r.className = 'result error'; r.textContent = `Request failed: ${e.message}`; }
+        }
+
+        async function predictInvoice() {
+            const r = document.getElementById('invoice-result');
+            const p = {
+                invoice_quantity: parseFloat(document.getElementById('inv-qty').value),
+                invoice_dollars: parseFloat(document.getElementById('inv-dollars').value),
+                freight: parseFloat(document.getElementById('inv-freight').value),
+                days_po_to_invoice: parseFloat(document.getElementById('inv-days-po').value) || 0,
+                days_to_pay: parseFloat(document.getElementById('inv-days-pay').value) || 0,
+                total_brands: parseFloat(document.getElementById('inv-brands').value) || 1,
+                total_item_quantity: parseFloat(document.getElementById('inv-total-qty').value),
+                total_item_dollars: parseFloat(document.getElementById('inv-total-dollars').value),
+                avg_receiving_time: parseFloat(document.getElementById('inv-recv-time').value) || 0
+            };
+            if (Object.values(p).some(v => isNaN(v) || v < 0)) { r.className = 'result error'; r.textContent = 'Please fill in all fields with valid numbers'; return; }
+            r.className = 'result'; r.textContent = 'Analyzing invoice...';
+            try {
+                const res = await fetch('/predict/invoice-risk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+                const d = await res.json();
+                if (res.ok) {
+                    r.className = 'result ' + (d.risk_flag ? 'error' : 'success');
+                    r.textContent = `${d.risk_flag ? 'RISKY - Anomaly Detected' : 'NORMAL - No Issues Found'}\nConfidence: ${(d.confidence * 100).toFixed(1)}%\nModel version: ${d.model_version}`;
+                } else { r.className = 'result error'; r.textContent = `Error: ${d.detail}`; }
+            } catch (e) { r.className = 'result error'; r.textContent = `Request failed: ${e.message}`; }
+        }
+
+        async function retrain(model, btn) {
+            const r = document.getElementById(`retrain-${model}-result`);
+            btn.disabled = true; btn.textContent = 'Training...';
+            r.className = 'retrain-result'; r.textContent = `Retraining ${model} model...`;
+            try {
+                const res = await fetch(`/retrain/${model}`, { method: 'POST' });
+                const d = await res.json();
+                if (res.ok) {
+                    r.className = 'retrain-result ' + (d.promoted ? 'success' : '');
+                    r.textContent = d.promoted ? `Promoted to ${d.new_version}` : 'No improvement over current model';
+                } else { r.className = 'retrain-result error'; r.textContent = `Error: ${d.detail}`; }
+            } catch (e) { r.className = 'retrain-result error'; r.textContent = `Failed: ${e.message}`; }
+            btn.disabled = false; btn.innerHTML = '&#x1F504; Retrain';
+        }
+    </script>
+</body>
+</html>

@@ -1,3 +1,16 @@
 .DS_Store
 .venv/
+__pycache__/
+*.pyc
+
+# Data
 data/inventory.db
+data/predictions.db
+
+# Environment
+.env
+
+# Model artifacts (versioned separately)
+models/*/
+models/registry.json
+models/*.pkl
